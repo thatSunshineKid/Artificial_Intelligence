@@ -182,19 +182,19 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
         for nodes in toCheck:
             nodes = toCheck.pop()
-        if problem.isGoalState(nodes):
-            temp = []
-            path = []
-            while True:
-                temp = enodes[nodes]
-                if(temp[0] != 'start'):
-                    path.append(temp[0])
-                else:
-                    break
-                nodes = temp[1]
+            if problem.isGoalState(nodes):
+                temp = []
+                path = []
+                while True:
+                    temp = enodes[nodes]
+                    if(temp[0] != 'start'):
+                        path.append(temp[0])
+                    else:
+                        break
+                    nodes = temp[1]
 
-            path.reverse()
-            return path
+                path.reverse()
+                return path
 
         temp = 0
         for nodes, stuff in enodes.iteritems():
