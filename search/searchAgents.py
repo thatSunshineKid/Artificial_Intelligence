@@ -259,9 +259,7 @@ def euclideanHeuristic(position, problem, info={}):
     xy2 = problem.goal
     return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
 
-#####################################################
-# This portion is incomplete.  Time to write code!  #
-#####################################################
+
 
 class CornersProblem(search.SearchProblem):
     """
@@ -282,8 +280,6 @@ class CornersProblem(search.SearchProblem):
             if not startingGameState.hasFood(*corner):
                 print 'Warning: no food in corner ' + str(corner)
         self._expanded = 0 # Number of search nodes expanded
-        # Please add any code here which you would like to use
-        # in initializing the problem
         self.explored_corners = {}
         for corner in self.corners:
             self.explored_corners[corner] = False
@@ -380,8 +376,8 @@ def cornersHeuristic(state, problem):
     on the shortest path from the state to a goal of the problem; i.e.
     it should be admissible (as well as consistent).
     """
-    corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    corners = problem.corners # corner coordinates
+    walls = problem.walls # walls
 
     "*** YOUR CODE HERE ***"
     distances = [] 
@@ -423,7 +419,7 @@ class FoodSearchProblem:
         self.walls = startingGameState.getWalls()
         self.startingGameState = startingGameState
         self._expanded = 0
-        self.heuristicInfo = {} # A dictionary for the heuristic to store information
+        self.heuristicInfo = {} 
 
     def getStartState(self):
         return self.start
@@ -451,7 +447,6 @@ class FoodSearchProblem:
         x,y= self.getStartState()[0]
         cost = 0
         for action in actions:
-            # figure out the next state and see whether it's legal
             dx, dy = Actions.directionToVector(action)
             x, y = int(x + dx), int(y + dy)
             if self.walls[x][y]:
