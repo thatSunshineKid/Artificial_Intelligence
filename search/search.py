@@ -114,9 +114,6 @@ def dfs_helper(fringe, problem, already_explored):
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
     """
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
 
     #util.raiseNotDefined()
 def printq(q):
@@ -130,22 +127,41 @@ def breadthFirstSearch(problem):
     retpath = path
     while not q.isEmpty():
         currNode = q.pop()
+        if problem.isGoalState(currNode[0]):
+            return currNode[1][:]
+
         if currNode[0] not in already_explored: 
-            already_explored.append(currNode[0])   
-            for state, direction, price in problem.getSuccessors(currNode[0]):
+            already_explored.append(currNode[0])
+            slist = problem.getSuccessors(currNode[0])   
+            for state, direction, price in slist:
                 path=currNode[1][:] 
                 path.append(direction)
-                if problem.isGoalState(state):
-                    retpath = path
-                else:
-                    if state not in already_explored:
-                        q.push([state, path])
+                q.push([state, path])
 
     return retpath
 
 
 def uniformCostSearch(problem):
-    return aStarSearch(problem, nullHeuristic)
+    #Make the 3rd element our cost
+    q = util.PriorityQueueWithFunction(lambda x: x[2])
+
+    q.push((problem.getStartState(), [], 0))
+    explored = []
+    #explored = [problem.getStartState()]
+
+    while not q.isEmpty():
+        node = q.pop()
+        if problem.isGoalState(node[0]):
+            #print node
+            return node[1]
+        if node[0] not in explored:
+            slist = problem.getSuccessors(node[0])
+            for state, direction, price in slist:
+                if state not in explored:
+                    d = node[1] + [direction]
+                    q.push((state, d, node[2]+price))
+                explored.append(node[0])
+
 
 
     "Search the node of least total cost first. "
@@ -159,71 +175,26 @@ def nullHeuristic(state, problem=None):
     return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-    "Search the node that has the lowest combined cost and heuristic first."
-    "*** YOUR CODE HERE ***"
-    distance = 0
-    ##enodes keeps track of all the information of a given node
-    ##Direction, Parent, Calculated heuristic, children, distance
-    enodes = {}
-    ##Checks to see what is and isn't a goalstate
-    start = problem.getStartState()
-    current = start
-    enodes[current] = ['Startoo','Startoo', -1, [], distance]
-    toCheck = []
-    nlist = []
-    nlist.append(current)
+    #Make the 3rd element our cost
+    q = util.PriorityQueueWithFunction(lambda x: x[2] + heuristic(x[0], problem))
 
-    while True:
-        expanded = problem.getSuccessors(current)
-        ##Increment distance for the algorithm
-        distance = distance + 1
-        ##Sets it to the program knows this node is expanded, will prevent any double expansions
-        enodes[current][2] = -1
+    q.push((problem.getStartState(), [], 0))
+    explored = []
+    #explored = [problem.getStartState()]
 
-    ##Format the enodes dictionary and add the children nodes as well as various other information
-        for nodes in expanded:
-            if nodes[0] not in nlist:
-                nlist.append(current)
-                enodes[nodes[0]] = [nodes[1], current, distance + heuristic(nodes[0], problem), [], distance]
-                enodes[current][3] += [nodes[0]]
-                toCheck += [nodes[0]]
+    while not q.isEmpty():
+        node = q.pop()
+        if problem.isGoalState(node[0]):
+            #print node
+            return node[1]
+        if node[0] not in explored:
+            slist = problem.getSuccessors(node[0])
+            for state, direction, price in slist:
+                if state not in explored:
+                    d = node[1] + [direction]
+                    q.push((state, d, node[2]+price))
+                explored.append(node[0])
 
-    ##Checks the nodes to see if they are the goal state, if not then expand another node
-        for nodes in toCheck:
-            nodes = toCheck.pop()
-            #if nodes not in ngs:
-        if problem.isGoalState(nodes):
-            ##Generate the path from the goal node to the start node
-            temp = []
-            path = []
-            while True:
-                temp = enodes[nodes]
-                if(temp[0] != 'Startoo'):
-                    path.append(temp[0])
-                else:
-                    break
-                nodes = temp[1]
-
-            path.reverse()
-            return path
-        #else:
-        #  ngs += [nodes]
-
-    ##Get the best node for expansion
-    ##Temporary variable to store the heuristic size
-        temp = 0
-        for nodes, stuff in enodes.iteritems():
-            if(stuff[2] != -1):
-                if temp == 0:
-                    temp = stuff[2]
-                    current = nodes
-                    distance = stuff[4]
-                elif stuff[2] < temp:
-                    temp = stuff[2]
-                    current = nodes
-                    distance = stuff[4]
-
-    return [w]
 
 
 # Abbreviations
