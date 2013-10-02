@@ -127,6 +127,7 @@ def breadthFirstSearch(problem):
     already_explored = []
     q.push([problem.getStartState(),[]]) 
     path = []
+    retpath = path
     while not q.isEmpty():
         currNode = q.pop()
         if currNode[0] not in already_explored: 
@@ -135,11 +136,12 @@ def breadthFirstSearch(problem):
                 path=currNode[1][:] 
                 path.append(direction)
                 if problem.isGoalState(state):
-                    return path
+                    retpath = path
                 else:
-                    q.push([state, path])
+                    if state not in already_explored:
+                        q.push([state, path])
 
-    return path
+    return retpath
 
 
 def uniformCostSearch(problem):
@@ -160,19 +162,25 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     "Search the node that has the lowest combined cost and heuristic first."
     "*** YOUR CODE HERE ***"
     distance = 0
+    ##enodes keeps track of all the information of a given node
+    ##Direction, Parent, Calculated heuristic, children, distance
     enodes = {}
+    ##Checks to see what is and isn't a goalstate
     start = problem.getStartState()
     current = start
-    enodes[current] = ['start','start', -1, [], distance]
+    enodes[current] = ['Startoo','Startoo', -1, [], distance]
     toCheck = []
     nlist = []
     nlist.append(current)
 
     while True:
         expanded = problem.getSuccessors(current)
+        ##Increment distance for the algorithm
         distance = distance + 1
+        ##Sets it to the program knows this node is expanded, will prevent any double expansions
         enodes[current][2] = -1
 
+    ##Format the enodes dictionary and add the children nodes as well as various other information
         for nodes in expanded:
             if nodes[0] not in nlist:
                 nlist.append(current)
@@ -180,22 +188,29 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 enodes[current][3] += [nodes[0]]
                 toCheck += [nodes[0]]
 
+    ##Checks the nodes to see if they are the goal state, if not then expand another node
         for nodes in toCheck:
             nodes = toCheck.pop()
-            if problem.isGoalState(nodes):
-                temp = []
-                path = []
-                while True:
-                    temp = enodes[nodes]
-                    if(temp[0] != 'start'):
-                        path.append(temp[0])
-                    else:
-                        break
-                    nodes = temp[1]
+            #if nodes not in ngs:
+        if problem.isGoalState(nodes):
+            ##Generate the path from the goal node to the start node
+            temp = []
+            path = []
+            while True:
+                temp = enodes[nodes]
+                if(temp[0] != 'Startoo'):
+                    path.append(temp[0])
+                else:
+                    break
+                nodes = temp[1]
 
-                path.reverse()
-                return path
+            path.reverse()
+            return path
+        #else:
+        #  ngs += [nodes]
 
+    ##Get the best node for expansion
+    ##Temporary variable to store the heuristic size
         temp = 0
         for nodes, stuff in enodes.iteritems():
             if(stuff[2] != -1):
@@ -211,6 +226,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     return [w]
 
 
+# Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch
 astar = aStarSearch
