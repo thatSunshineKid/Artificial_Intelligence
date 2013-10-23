@@ -171,45 +171,52 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        v = float("-inf")
+
+        best = float("-inf")
         bestAction = []
-        agent = 0
-        actions = gameState.getLegalActions(agent)
-        successors = [(action, gameState.generateSuccessor(agent, action)) for action in actions]
+        
+        legalActions = gameState.getLegalActions(0)
+
+        successors = [(action, gameState.generateSuccessor(0, action)) for action in legalActions]
+
         for successor in successors:
-            temp = minimax(1, range(gameState.getNumAgents()), successor[1], self.depth, self.evaluationFunction)
+            val = minimax(1, range(gameState.getNumAgents()), successor[1], self.depth, self.evaluationFunction)
             
-            if temp > v:
-              v = temp
+            if val > best:
+              best = val
               bestAction = successor[0]
+
         return bestAction
                
-def minimax(agent, agentList, state, depth, evalFunc):
+def minimax(agent, agentList, state, depth, evaluationFunction):
   
   if depth <= 0 or state.isWin() == True or state.isLose() == True:
-    return evalFunc(state)
+    return evaluationFunction(state)
     
   if agent == 0:
-    v = float("-inf")
+    result = float("-inf")
   else:
-    v = float("inf")
+    result = float("inf")
           
   actions = state.getLegalActions(agent)
   successors = [state.generateSuccessor(agent, action) for action in actions]
-  for j in range(len(successors)):
-    successor = successors[j];
-    
+
+  for successor in successors:
+
     if agent == 0:
-      
-      v = max(v, minimax(agentList[agent+1], agentList, successor, depth, evalFunc))
-    elif agent == agentList[-1]:
-      
-      v = min(v, minimax(agentList[0], agentList, successor, depth - 1, evalFunc))
+      temp = minimax(agentList[agent+1], agentList, successor, depth, evaluationFunction)
+      if temp > result:
+        result = temp
     else:
-     
-      v = min(v, minimax(agentList[agent+1], agentList, successor, depth, evalFunc))
+      if agent == agentList[-1]:
+        temp = minimax(agentList[0], agentList, successor, depth - 1, evaluationFunction)
+      else:
+        temp = minimax(agentList[agent+1], agentList, successor, depth, evaluationFunction)
+
+      if temp < result:
+        result = temp
   
-  return v       
+  return result       
         # util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
