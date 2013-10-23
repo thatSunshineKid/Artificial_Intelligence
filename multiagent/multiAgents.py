@@ -68,36 +68,43 @@ class ReflexAgent(Agent):
         Print out these variables to see what you're getting, then combine them
         to create a masterful evaluation function.
         """
+        "*** YOUR CODE HERE ***"
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
-        curFood = currentGameState.getFood()
-        curFoodList = curFood.asList()
-        curPos = currentGameState.getPacmanPosition()
-        newPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood()
-        newGhostStates = successorGameState.getGhostStates()
-        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-        newFoodList = newFood.asList()
+        current_food = currentGameState.getFood()
+        curFoodList = current_food.asList()
+        current_positon = currentGameState.getPacmanPosition()
+        new_position = successorGameState.getPacmanPosition()
+        new_food = successorGameState.getFood()
+        new_ghost_states = successorGameState.getGhostStates()
+        new_scared_times = [ghostState.scaredTimer for ghostState in new_ghost_states]
+        new_food_list = new_food.asList()
 
         ghostPositions = successorGameState.getGhostPositions()
         distance = float("inf")
-        scared = newScaredTimes[0] > 0
+        scared = new_scared_times[0] > 0
+        
         for ghost in ghostPositions:
-          d = manhattanDistance(ghost, newPos)
+          d = manhattanDistance(ghost, new_position)
           distance = min(d, distance)
+          #print distance
         
         distance2 = float("inf")        
         distance3 = float("-inf")
         distance4 = float("inf")
-        for food in newFoodList:
-          d = manhattanDistance(food, newPos)
-          d0 = manhattanDistance(food, curPos)
+        for food in new_food_list:
+          d = manhattanDistance(food, new_position)
+          d0 = manhattanDistance(food, current_positon)
           distance2 = min(d, distance2)
           distance3 = max(d, distance3)
 
-        cond = len(newFoodList) < len(curFoodList)
-        count = len(newFoodList)
-        if cond:
+        #print distance2
+        #print distance3
+        #print distance4
+
+        condition = len(new_food_list) < len(curFoodList)
+        count = len(new_food_list)
+        if condition:
           count = 10000
         if distance < 2:
           distance = -100000
@@ -108,7 +115,7 @@ class ReflexAgent(Agent):
         if scared:
           distance = 0
         return distance + 1.0/distance2 + count - successorGameState.getScore()
-        "*** YOUR CODE HERE ***"
+        
         # return successorGameState.getScore()
 
 def scoreEvaluationFunction(currentGameState):
@@ -217,10 +224,9 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         return self.getValue(gameState, 0, float("-inf"), float("inf"), self.depth - 1)[1]
     def getValue(self, gameState, agentIndex, alpha, beta, depth):
         #end on child node
-        if gameState.isWin() or gameState.isLose():
+        if gameState.isWin() or gameState.isLose(): # if game should be over
             return (self.evaluationFunction(gameState), Directions.STOP)
         elif agentIndex == gameState.getNumAgents():
-            #Decrease depth on last ghost
             return self.getValue(gameState, 0, alpha, beta, depth - 1)
         elif agentIndex > 0:
             return self.minvalue(gameState, agentIndex, alpha, beta, depth)
@@ -229,32 +235,32 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         return 0
     def maxvalue(self, gameState, agentIndex, alpha, beta, depth):
         v = float("-inf")
-        best = Directions.STOP
+        best_move = Directions.STOP
         actions = gameState.getLegalActions(agentIndex)
         for action in actions:
             nextMoveScore = self.getValue(gameState.generateSuccessor(agentIndex, action), agentIndex + 1, alpha, beta,
                                           depth)
             if nextMoveScore[0] > v:
                 v = nextMoveScore[0]
-                best = action
+                best_move = action
                 if v > beta:
-                    return (v, best)
+                    return (v, best_move)
                 alpha = max(v, alpha)
-        return (v, best)
+        return (v, best_move)
     def minvalue(self, gameState, agentIndex, alpha, beta, depth):
         v = float("inf")
-        best = Directions.STOP
+        best_move = Directions.STOP
         if agentIndex == (gameState.getNumAgents() - 1) and depth == 0:
             actions = gameState.getLegalActions(agentIndex) # Collect legal moves and successor states
             for action in actions:
                 nextMoveScore = (self.evaluationFunction(gameState.generateSuccessor(agentIndex, action)), action)
                 if nextMoveScore[0] < v:
-                    best = action
+                    best_move = action
                     v = nextMoveScore[0]
                     if v < alpha:
-                        return (v, best)
+                        return (v, best_move)
                     beta = min(beta, v)
-            return (v, best)
+            return (v, best_move)
         else: 
             actions = gameState.getLegalActions(agentIndex) 
             for action in actions:
@@ -262,11 +268,11 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                                               beta, depth)
                 if nextMoveScore[0] < v:
                     v = nextMoveScore[0]
-                    best = action
+                    best_move = action
                     if v < alpha:
-                        return (v, best)
+                        return (v, best_move)
                     beta = min(beta, v)
-            return (v, best)
+            return (v, best_move)
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
