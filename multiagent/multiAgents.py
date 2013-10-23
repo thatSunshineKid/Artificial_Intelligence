@@ -11,6 +11,8 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and 
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
+# 
+# By Adam Sunshine & Spencer Comerford
 
 
 from util import manhattanDistance
@@ -87,7 +89,7 @@ class ReflexAgent(Agent):
         new_food_list = new_food.asList()
 
         ghostPositions = successorGameState.getGhostPositions()
-        distance = float("inf")
+        distance = MAX_VALUE
         scared = new_scared_times[0] > 0
         
         for ghost in ghostPositions:
@@ -95,9 +97,9 @@ class ReflexAgent(Agent):
           distance = min(d, distance)
           #print distance
         
-        distance2 = float("inf")        
-        distance3 = float("-inf")
-        distance4 = float("inf")
+        distance2 = MAX_VALUE        
+        distance3 = MIN_VALUE
+        distance4 = MAX_VALUE
         for food in new_food_list:
           d = manhattanDistance(food, new_position)
           d0 = manhattanDistance(food, current_positon)
@@ -247,7 +249,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             return self.maxvalue(gameState, agentIndex, alpha, beta, depth)
         return 0
     def maxvalue(self, gameState, agentIndex, alpha, beta, depth):
-        v = float("-inf")
+        v = MIN_VALUE
         best_move = Directions.STOP
         actions = gameState.getLegalActions(agentIndex)
         for action in actions:
@@ -261,7 +263,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 alpha = max(v, alpha)
         return (v, best_move)
     def minvalue(self, gameState, agentIndex, alpha, beta, depth):
-        v = float("inf")
+        v = MAX_VALUE
         best_move = Directions.STOP
         if agentIndex == (gameState.getNumAgents() - 1) and depth == 0:
             actions = gameState.getLegalActions(agentIndex) # Collect legal moves and successor states
@@ -347,7 +349,12 @@ def betterEvaluationFunction(currentGameState):
       Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
       evaluation function (question 5).
 
-      DESCRIPTION: <write something here so we know what you did>
+      DESCRIPTION: This evaluation function first sums up the distances to all of the food pellets and
+      stores that in foodDist. It checks to see if there are no food pellets left and if so sets the score
+      to a very large value. Then the evaluation compares the distances to ghosts along with their scared
+      times and adjusts the ghostScore so that scared ghosts within reach have a positive effect on the ghostScore
+      and otherwise the closer a non-scared ghost is to pacman the more the ghostScore is effected negatively.
+      Finally, the food distances and ghost scores are combined and adjusted so higher scores are better.
     """
     "*** YOUR CODE HERE ***"
     newPos = currentGameState.getPacmanPosition()
